@@ -69,4 +69,10 @@ def update_post_content(request, pk):
 
     return Response(serializer.data)
 
+@api_view(['DELETE'])
+def delete_post_content(request, pk):
+    post_content = PostContent.objects.get(id=pk)
+    post_content.delete()
+
+    return Response("All gone!")
     
