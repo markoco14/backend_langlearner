@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from api.serializers import PostContentSerializer, PostSerializer
 from posts.models import Post, PostContent
 import pinyin
+import jieba
 
 # Create your views here.
 
@@ -125,3 +126,11 @@ def get_post_pinyin(request, pk):
         })
 
     return Response(pinyin_content)
+
+@api_view(['GET'])
+def get_segments(request, pk):
+    post_content = PostContent.objects.get(id=pk)
+    content = post_content.content
+    word_segments = jieba.lcut(content, cut_all=False)
+
+    return Response(word_segments)
