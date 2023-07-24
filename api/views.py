@@ -60,3 +60,13 @@ def write_post_content(request):
     else:
         return Response("something went wrong")
     
+@api_view(['PUT'])
+def update_post_content(request, pk):
+    post_content = PostContent.objects.get(id=pk)
+    serializer = PostContentSerializer(instance=post_content, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+
+    return Response(serializer.data)
+
+    
