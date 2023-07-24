@@ -15,4 +15,6 @@ urlpatterns = [
     path('posts/content/update/<str:pk>', views.update_post_content, name='update-post-content'),
     path('posts/content/delete/<str:pk>', views.delete_post_content, name='delete-post-content'),
 
+    path('posts/pinyin/<str:pk>', views.get_post_pinyin, name='get-post-pinyin')
+
 ]
