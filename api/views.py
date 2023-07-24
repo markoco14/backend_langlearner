@@ -9,6 +9,14 @@ from posts.models import Post
 def helloWorld(request):
     return Response({"message": "Hello World"})
 
+@api_view(['GET'])
+def get_posts(request):
+    posts = Post.objects.all()
+    serializer = PostSerializer(posts, many=True)
+
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 def write_post(request):
     serializer = PostSerializer(data=request.data)

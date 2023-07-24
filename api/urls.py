@@ -5,6 +5,6 @@ urlpatterns = [
     # GREETING ROUTE
     path('', views.helloWorld, name='hello-world'),
 
-
-    path('write-post/', views.write_post, name='write-post'),
+    path('posts/', views.get_posts, name='get-posts'),
+    path('posts/write/', views.write_post, name='write-post'),
 ]
