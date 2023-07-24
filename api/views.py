@@ -35,6 +35,22 @@ def write_post(request):
     else:
         return Response("something went wrong")
     
+@api_view(['PUT'])
+def update_post(request, pk):
+    post = Post.objects.get(id=pk)
+    serializer = PostSerializer(instance=post, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+def delete_post(request, pk):
+    post = Post.objects.get(id=pk)
+    post.delete()
+
+    return Response("Post gone!")
+    
 # 
 # 
 # 
@@ -74,5 +90,5 @@ def delete_post_content(request, pk):
     post_content = PostContent.objects.get(id=pk)
     post_content.delete()
 
-    return Response("All gone!")
+    return Response("Post content gone!")
     
