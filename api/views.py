@@ -159,6 +159,7 @@ def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
     print(
         f"{destination_blob_name} with contents {contents} uploaded to {bucket_name}."
     )
+    
 
 @api_view(['GET'])
 def get_tts(request, pk):
@@ -199,6 +200,39 @@ def get_tts(request, pk):
     #     out.write(response.audio_content)
 
     return Response('Audio content saved to cloud storage')
+
+def download_blob_into_memory(bucket_name, blob_name):
+    """Downloads a blob into memory."""
+    # The ID of your GCS bucket
+    # bucket_name = "your-bucket-name"
+
+    # The ID of your GCS object
+    # blob_name = "storage-object-name"
+
+    storage_client = storage.Client()
+
+    bucket = storage_client.bucket(bucket_name)
+
+    # Construct a client side representation of a blob.
+    # Note `Bucket.blob` differs from `Bucket.get_blob` as it doesn't retrieve
+    # any content from Google Cloud Storage. As we don't need additional data,
+    # using `Bucket.blob` is preferred here.
+    blob = bucket.blob(blob_name)
+    contents = blob.download_as_string()
+
+    print(
+        "Downloaded storage object {} from bucket {} as the following string: {}.".format(
+            blob_name, bucket_name, contents
+        )
+    )
+
+@api_view(['GET'])
+def get_audio_from_bucket(request):
+    bucket_name = 'twle-445f4.appspot.com'
+    blob_name = 'chinese/1690267027531.mp3'
+    download_blob_into_memory(bucket_name, blob_name)
+    return Response('Audio downloaded into memory.')
+
 
 
 # what are the steps
