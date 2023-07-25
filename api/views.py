@@ -1,3 +1,4 @@
+import time
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -5,7 +6,7 @@ from api.serializers import PostContentSerializer, PostSerializer
 from posts.models import Post, PostContent
 import pinyin
 import jieba
-from google.cloud import texttospeech
+from google.cloud import texttospeech, storage
 
 # Create your views here.
 
@@ -136,12 +137,35 @@ def get_segments(request, pk):
 
     return Response(word_segments)
 
+
+def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
+    """Uploads a file to the bucket."""
+
+    # The ID of your GCS bucket
+    # bucket_name = "your-bucket-name"
+
+    # The contents to upload to the file
+    # contents = "these are my contents"
+
+    # The ID of your GCS object
+    # destination_blob_name = "storage-object-name"
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+
+    blob.upload_from_string(contents)
+
+    print(
+        f"{destination_blob_name} with contents {contents} uploaded to {bucket_name}."
+    )
+
 @api_view(['GET'])
 def get_tts(request, pk):
     post_content = PostContent.objects.get(id=pk)
     content = post_content.content
 
-    client = texttospeech.TextToSpeechClient()
+    tts_client = texttospeech.TextToSpeechClient()
     synthesis_input = texttospeech.SynthesisInput(text=content)
     # MALE VOICE
     voice = texttospeech.VoiceSelectionParams(
@@ -158,15 +182,23 @@ def get_tts(request, pk):
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
-    response = client.synthesize_speech(
+    response = tts_client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
-    # REPLACE WITH CLOUD STORAGE
-    with open("./files/male.mp3", "wb") as out:
-        # Write the response to the output file.
-        out.write(response.audio_content)
+    # UPLOAD FILE TO STORAGE
+    bucket_name = 'twle-445f4.appspot.com'
+    contents = response.audio_content
+    destination_blob_name = "chinese/" + \
+            str(round(time.time() * 1000)) + ".mp3"
 
-    return Response('Audio content written to ./files as "male.mp3"')
+    upload_blob_from_memory(bucket_name, contents, destination_blob_name)
+
+    # REPLACE WITH CLOUD STORAGE
+    # with open("./files/male.mp3", "wb") as out:
+    #     # Write the response to the output file.
+    #     out.write(response.audio_content)
+
+    return Response('Audio content saved to cloud storage')
 
 
 # what are the steps
