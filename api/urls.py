@@ -15,7 +15,8 @@ urlpatterns = [
     path('posts/content/update/<str:pk>/', views.update_post_content, name='update-post-content'),
     path('posts/content/delete/<str:pk>/', views.delete_post_content, name='delete-post-content'),
 
-    path('posts/pinyin/<str:pk>/', views.get_post_pinyin, name='get-post-pinyin'),
-    path('posts/segments/<str:pk>/', views.get_segments, name='get-segments')
+    path('posts/content/<str:pk>/pinyin/', views.get_post_pinyin, name='get-post-pinyin'),
+    path('posts/content/<str:pk>/segments/', views.get_segments, name='get-segments'),
+    path('posts/content/<str:pk>/audio/', views.get_tts, name='get-audio'),
 
 ]
