@@ -78,15 +78,18 @@ def get_post_contents(request):
 
 
 @api_view(['POST'])
-def write_post_content(request):
-    serializer = PostContentSerializer(data=request.data)
+def write_post_content(request, post_pk):
+    request_data = {
+        'post': post_pk,
+        'content': request.data['content']
+    }
+    serializer = PostContentSerializer(data=request_data)
 
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
     else:
         return Response("something went wrong")
-
 
 @api_view(['PUT'])
 def update_post_content(request, pk):
