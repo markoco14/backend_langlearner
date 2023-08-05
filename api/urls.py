@@ -19,7 +19,7 @@ urlpatterns = [
     path('posts/content/<str:pk>/segments/', views.get_segments, name='get-segments'),
     path('posts/content/<str:pk>/audio/', views.get_tts, name='get-audio'),
 
-
-    path('posts/content/get-audio/', views.get_audio_from_bucket, name='get-audio-from-bucket')
+    path('posts/content/get-audio/', views.get_audio_from_bucket, name='get-audio-from-bucket'),
+    path('posts/content/get-audio-url/', views.get_audio_url, name='get-audio-url'),
 
 ]
