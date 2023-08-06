@@ -33,7 +33,7 @@ def get_posts(request):
 
 
 @api_view(['POST'])
-def write_post(request):
+def create_post(request):
     serializer = PostSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -68,11 +68,10 @@ def delete_post(request, pk):
 #
 #
 
-
 @api_view(['GET'])
-def get_post_contents(request):
-    post_contents = PostContent.objects.all()
-    serializer = PostContentSerializer(post_contents, many=True)
+def get_post_content(request, post_pk):
+    post_content = PostContent.objects.get(post=post_pk)
+    serializer = PostContentSerializer(post_content, many=False)
 
     return Response(serializer.data)
 
