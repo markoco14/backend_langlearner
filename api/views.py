@@ -134,7 +134,7 @@ def delete_post_content(request, pk):
 
 
 @api_view(['GET'])
-def get_post_pinyin(request, pk):
+def create_post_pinyin(request, pk):
     post_content = PostContent.objects.get(id=pk)
     # get post content as list to iterate through
     content = post_content.content
@@ -166,7 +166,7 @@ def get_post_pinyin(request, pk):
 
 
 @api_view(['GET'])
-def get_segments(request, pk):
+def create_segments(request, pk):
     post_content = PostContent.objects.get(id=pk)
     content = post_content.content
     word_segments = jieba.lcut(content, cut_all=False)
@@ -202,7 +202,7 @@ def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
 
 
 @api_view(['GET'])
-def get_tts(request, pk):
+def create_tts(request, pk):
     post_content = PostContent.objects.get(id=pk)
     content = post_content.content
 
