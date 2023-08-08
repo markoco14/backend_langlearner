@@ -70,10 +70,14 @@ def delete_post(request, pk):
 
 @api_view(['GET'])
 def get_post_content(request, post_pk):
-    post_content = PostContent.objects.get(post=post_pk)
-    serializer = PostContentSerializer(post_content, many=False)
+    try:
+        post_content = PostContent.objects.get(post=post_pk)
+        serializer = PostContentSerializer(post_content, many=False)
 
-    return Response(serializer.data)
+        return Response(serializer.data)
+
+    except:
+        return Response({})
 
 
 @api_view(['POST'])
