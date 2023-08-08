@@ -2,7 +2,7 @@ import time
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.serializers import PostContentSerializer, PostSerializer
+from api.serializers import PostContentPinyinSerializer, PostContentSerializer, PostSerializer
 from posts.models import Post, PostContent
 import pinyin
 import jieba
@@ -125,16 +125,33 @@ def delete_post_content(request, pk):
 @api_view(['GET'])
 def get_post_pinyin(request, pk):
     post_content = PostContent.objects.get(id=pk)
+    # get post content as list to iterate through
     content = post_content.content
-    list_content = list(content)
-    pinyin_content = []
-    for char in list_content:
-        pinyin_content.append({
+    content_as_list = list(content)
+    # convert each character into pinyin and store in pinyin list
+    pinyin_content_list = []
+    for char in content_as_list:
+        pinyin_content_list.append({
             "pinyin": pinyin.get(char),
             "chinese": char
         })
+    # join into pinyin string so characters can be matched on frontend
+    pinyin_string = ' '.join(item['pinyin'] for item in pinyin_content_list)
+    
+    # pair the data for the serializer
+    data={
+        "pinyin_content": pinyin_string,
+        "post_content": pk
+    }
+    serializer = PostContentPinyinSerializer(data=data)
 
-    return Response(pinyin_content)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response({})
+
+
 
 
 @api_view(['GET'])
