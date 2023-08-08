@@ -26,10 +26,14 @@ class PostContent(models.Model):
         
 
 
-# class PostContentPinyin(models.Model):
-#     pinyin_content = models.TextField()
-#     post_content = models.OneToOneField(
-#         PostContent, related_name='content_pinyin', on_delete=models.CASCADE)
+class PostContentPinyin(models.Model):
+    pinyin_content = models.TextField()
+    post_content = models.OneToOneField(
+        PostContent, related_name='pinyin', on_delete=models.CASCADE)
 
-#     def __str__(self):
-#         return f"Pinyin for {self.post_content.post.title}"
+    def __str__(self):
+        return f"Pinyin for {self.post_content.post.title}"
+    
+    class Meta:
+        db_table='posts_post_content_pinyin'
+        verbose_name_plural='Post content pinyin'
