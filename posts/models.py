@@ -14,6 +14,7 @@ class PostContent(models.Model):
     post = models.ForeignKey(
         Post, related_name='content', on_delete=models.CASCADE)
     content = models.TextField()
+    level = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Content for {self.post.title}"
@@ -21,6 +22,7 @@ class PostContent(models.Model):
     class Meta:
         db_table='posts_post_content'
         verbose_name_plural='Post content'
+        unique_together=['post', 'level']
         
 
 
