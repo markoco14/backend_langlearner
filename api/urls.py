@@ -11,6 +11,7 @@ urlpatterns = [
     path('posts/<str:pk>/delete/', views.delete_post, name='delete-post'),
 
     path('posts/<str:post_pk>/content/', views.get_post_content, name='get-post-content'),
+    path('posts/<str:post_pk>/content/<str:level_pk>/', views.get_post_content_by_id_level, name='get-post-content-id-level'),
     path('posts/<str:post_pk>/content/write/', views.write_post_content, name='write-post-content'),
     path('posts/content/<str:pk>/update/', views.update_post_content, name='update-post-content'),
     path('posts/content/<str:pk>/delete/', views.delete_post_content, name='delete-post-content'),
