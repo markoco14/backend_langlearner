@@ -17,6 +17,11 @@ class PostContent(models.Model):
 
     def __str__(self):
         return f"Content for {self.post.title}"
+    
+    class Meta:
+        db_table='posts_post_content'
+        verbose_name_plural='Post content'
+        
 
 
 # class PostContentPinyin(models.Model):
@@ -25,4 +30,4 @@ class PostContent(models.Model):
 #         PostContent, related_name='content_pinyin', on_delete=models.CASCADE)
 
 #     def __str__(self):
-#         return f"Pinyin for {self.post_content.content}"
+#         return f"Pinyin for {self.post_content.post.title}"
