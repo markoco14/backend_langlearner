@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from api.serializers import PostContentPinyinSerializer, PostContentSerializer, PostSerializer
-from posts.models import Post, PostContent
+from posts.models import Post, PostContent, PostContentPinyin
 import pinyin
 import jieba
 from google.cloud import texttospeech, storage
@@ -131,6 +131,19 @@ def delete_post_content(request, pk):
 #
 #
 #
+@api_view(['GET'])
+def get_pinyin_content_by_post_id(request, pk):
+    try:
+        pinyin = PostContentPinyin.objects.filter(
+            post_content__post__id=pk,
+            post_content__level=0 
+        ).first()
+        serializer = PostContentPinyinSerializer(pinyin)
+
+        return Response(serializer.data)
+    except:
+
+        return Response({})
 
 
 @api_view(['GET'])
