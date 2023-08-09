@@ -7,7 +7,7 @@ class Post(models.Model):
     title = models.CharField(max_length=100, default="")
 
     def __str__(self):
-        return self.title
+        return f"{self.title} (id: {self.id})"
 
 
 class PostContent(models.Model):
@@ -17,7 +17,7 @@ class PostContent(models.Model):
     level = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"Content for {self.post.title}"
+        return f"Content for {self.post.title} (level: {self.level})"
     
     class Meta:
         db_table='posts_post_content'
@@ -32,7 +32,7 @@ class PostContentPinyin(models.Model):
         PostContent, related_name='pinyin', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Pinyin for {self.post_content.post.title}"
+        return f"Pinyin for {self.post_content.post.title} (level: {self.post_content.level})"
     
     class Meta:
         db_table='posts_post_content_pinyin'
