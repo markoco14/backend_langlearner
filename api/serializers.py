@@ -17,3 +17,9 @@ class PostContentPinyinSerializer(serializers.ModelSerializer):
     class Meta:
         model=PostContentPinyin
         fields='__all__'
+
+class ReadPostSerializer(serializers.Serializer):
+    class Meta:
+        fields='id, content, pinyin, title'
+
+

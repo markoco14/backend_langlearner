@@ -23,4 +23,6 @@ urlpatterns = [
 
     path('posts/content/get-audio-url/', views.get_audio_url, name='get-audio-url'),
 
+    path('read/posts/<str:post_pk>/level/<str:level_pk>/', views.get_post_content_with_pinyin, name='content-with-pinyin'),
+
 ]
