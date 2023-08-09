@@ -1,11 +1,12 @@
+import time
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.serializers import PostContentSerializer, PostSerializer
-from posts.models import Post, PostContent
+from api.serializers import PostContentPinyinSerializer, PostContentSerializer, PostSerializer
+from posts.models import Post, PostContent, PostContentPinyin
 import pinyin
 import jieba
-from google.cloud import texttospeech
+from google.cloud import texttospeech, storage
 
 # Create your views here.
 
@@ -32,7 +33,7 @@ def get_posts(request):
 
 
 @api_view(['POST'])
-def write_post(request):
+def create_post(request):
     serializer = PostSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -67,18 +68,36 @@ def delete_post(request, pk):
 #
 #
 
-
 @api_view(['GET'])
-def get_post_contents(request):
-    post_contents = PostContent.objects.all()
-    serializer = PostContentSerializer(post_contents, many=True)
+def get_post_content(request, post_pk):
+    try:
+        post_content = PostContent.objects.get(post_id=post_pk)
+        serializer = PostContentSerializer(post_content, many=False)
 
-    return Response(serializer.data)
+        return Response(serializer.data)
+
+    except:
+        return Response({})
+    
+@api_view(['GET'])    
+def get_post_content_by_id_level(request, post_pk, level_pk):
+    try:
+        post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
+        serializer = PostContentSerializer(post_content, many=False)
+
+        return Response(serializer.data)
+
+    except:
+        return Response({})
 
 
 @api_view(['POST'])
-def write_post_content(request):
-    serializer = PostContentSerializer(data=request.data)
+def write_post_content(request, post_pk):
+    request_data = {
+        'post': post_pk,
+        'content': request.data['content']
+    }
+    serializer = PostContentSerializer(data=request_data)
 
     if serializer.is_valid():
         serializer.save()
@@ -112,43 +131,96 @@ def delete_post_content(request, pk):
 #
 #
 #
+@api_view(['GET'])
+def get_pinyin_content_by_post_id(request, pk):
+    try:
+        pinyin = PostContentPinyin.objects.filter(
+            post_content__post__id=pk,
+            post_content__level=0 
+        ).first()
+        serializer = PostContentPinyinSerializer(pinyin)
+
+        return Response(serializer.data)
+    except:
+
+        return Response({})
 
 
 @api_view(['GET'])
-def get_post_pinyin(request, pk):
+def create_post_pinyin(request, pk):
     post_content = PostContent.objects.get(id=pk)
+    # get post content as list to iterate through
     content = post_content.content
-    list_content = list(content)
-    pinyin_content = []
-    for char in list_content:
-        pinyin_content.append({
+    content_as_list = list(content)
+    # convert each character into pinyin and store in pinyin list
+    pinyin_content_list = []
+    for char in content_as_list:
+        pinyin_content_list.append({
             "pinyin": pinyin.get(char),
             "chinese": char
         })
+    # join into pinyin string so characters can be matched on frontend
+    pinyin_string = ' '.join(item['pinyin'] for item in pinyin_content_list)
+    
+    # pair the data for the serializer
+    data={
+        "pinyin_content": pinyin_string,
+        "post_content": pk
+    }
+    serializer = PostContentPinyinSerializer(data=data)
 
-    return Response(pinyin_content)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response({})
+
+
+
 
 @api_view(['GET'])
-def get_segments(request, pk):
+def create_segments(request, pk):
     post_content = PostContent.objects.get(id=pk)
     content = post_content.content
     word_segments = jieba.lcut(content, cut_all=False)
 
     return Response(word_segments)
 
+
+def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
+    """Uploads a file to the bucket."""
+
+    # The ID of your GCS bucket
+    # bucket_name = "your-bucket-name"
+
+    # The contents to upload to the file
+    # contents = "these are my contents"
+
+    # The ID of your GCS object
+    # destination_blob_name = "storage-object-name"
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+
+    blob.upload_from_string(contents)
+    blob.make_public()
+    public_url = blob.public_url
+
+    print(
+        f"{destination_blob_name} with contents {contents} uploaded to {bucket_name} with public url {public_url}."
+    )
+
+    return public_url
+
+
 @api_view(['GET'])
-def get_tts(request, pk):
+def create_tts(request, pk):
     post_content = PostContent.objects.get(id=pk)
     content = post_content.content
 
-    # Instantiates a client
-    client = texttospeech.TextToSpeechClient()
-
-    # Set the text input to be synthesized
+    tts_client = texttospeech.TextToSpeechClient()
     synthesis_input = texttospeech.SynthesisInput(text=content)
-
-    # Build the voice request, select the language code ("en-US") and the ssml
-    # voice gender ("neutral")
     # MALE VOICE
     voice = texttospeech.VoiceSelectionParams(
         language_code="cmn-TW",
@@ -161,29 +233,67 @@ def get_tts(request, pk):
     #     name="cmn-TW-Wavenet-A",
     #     ssml_gender=texttospeech.SsmlVoiceGender.FEMALE,
     # )
-
-    # Select the type of audio file you want returned
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
-
-    # Perform the text-to-speech request on the text input with the selected
-    # voice parameters and audio file type
-    response = client.synthesize_speech(
+    response = tts_client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
+    # UPLOAD FILE TO STORAGE
+    bucket_name = 'twle-445f4.appspot.com'
+    contents = response.audio_content
+    destination_blob_name = "chinese/" + \
+        str(round(time.time() * 1000)) + ".mp3"
 
-    # The response's audio_content is binary.
-    with open("./files/male.mp3", "wb") as out:
-        # Write the response to the output file.
-        out.write(response.audio_content)
+    public_url = upload_blob_from_memory(
+        bucket_name, contents, destination_blob_name)
 
-    return Response('Audio content written to ./files as "output.mp3"')
+    # REPLACE WITH CLOUD STORAGE
+    # with open("./files/male.mp3", "wb") as out:
+    #     # Write the response to the output file.
+    #     out.write(response.audio_content)
+
+    return Response({
+        'message': 'Audio content saved to cloud storage',
+        'public-url': public_url
+    })
+
+
+@api_view(['GET'])
+def get_audio_url(request):
+    # FOR NOW I WILL STORE THE URL IN A TABLE
+    # AND IT WILL BE A PUBLIC URL
+    bucket_name = 'twle-445f4.appspot.com'
+    blob_name = 'chinese/1690267027531.mp3'
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+
+    # FOR LATER I WILL SET UP THE PERMISSIONS
+    # TO LET ME MAKE A TEMPORARY SIGNED URL
+    # THAT WILL LET ME STORE THE URL ON THE USER'S DEVICE
+    # AND ONLY HAVE TO RE-REQUEST WHEN THOSE URLS ARE EXPIRED
+    # Make the blob publicly accessible for a duration.
+    # Note: In this case the duration is 1 hour (3600 seconds).
+    # url = blob.generate_signed_url(
+    #     # This URL will be valid for 1 hour
+    #     expiration=datetime.timedelta(seconds=3600),
+    #     # Allow GET requests using this URL.
+    #     method='GET'
+    # )
+
+    return Response({
+        "url": "https://storage.googleapis.com/twle-445f4.appspot.com/chinese/1691211111218.mp3"
+    })
+    # return file
 
 
 # what are the steps
 # 1) choose a title for the article (can change later)
 # 2) make the article content
 # 3) get the voice
-# 4) get the pinyin
-# 5) get the segments
+# 4) set up storage
+# 5) get the pinyin
+# 6) get the segments
+# 7) get the timestamps (update voice)
+# 8) get the dictionary (because you can make copy/paste/translate easily for now)
