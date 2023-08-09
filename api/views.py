@@ -2,7 +2,7 @@ import time
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.serializers import PostContentPinyinSerializer, PostContentSerializer, PostSerializer
+from api.serializers import PostContentPinyinSerializer, PostContentSerializer, PostSerializer, ReadPostSerializer
 from posts.models import Post, PostContent, PostContentPinyin
 import pinyin
 import jieba
@@ -14,6 +14,59 @@ from google.cloud import texttospeech, storage
 @api_view(['GET'])
 def helloWorld(request):
     return Response("hello world")
+
+#
+#
+#
+# READER VIEWS
+#
+#
+#
+@api_view(['GET'])
+def get_post_content_with_pinyin(request, post_pk, level_pk):
+    try:
+        post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
+
+        if post_content:
+            post_pinyin = PostContentPinyin.objects.get(post_content_id=post_content.id)
+
+            if post_pinyin:
+                id = post_content.id
+                content = post_content.content
+                pinyin = post_pinyin.pinyin_content
+                title = post_content.post.title
+
+                data = {
+                    "id": id,
+                    "content": content,
+                    "pinyin": pinyin,
+                    "title": title
+                }
+
+                return Response(data)
+    except:
+        return Response({})
+
+# try:
+#     post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
+#     serializer = PostContentSerializer(post_content, many=False)
+
+#     return Response(serializer.data)
+
+# except:
+#     return Response({})
+
+# try:
+#         pinyin = PostContentPinyin.objects.filter(
+#             post_content__post__id=pk,
+#             post_content__level=0 
+#         ).first()
+#         serializer = PostContentPinyinSerializer(pinyin)
+
+#         return Response(serializer.data)
+#     except:
+
+#         return Response({})
 
 #
 #
