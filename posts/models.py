@@ -13,7 +13,7 @@ class Post(models.Model):
 class PostContent(models.Model):
     post = models.ForeignKey(
         Post, related_name='content', on_delete=models.CASCADE)
-    content = models.TextField()
+    content = models.JSONField()
     level = models.IntegerField(default=0)
 
     def __str__(self):
