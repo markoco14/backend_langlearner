@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=100, default="")
+    title = models.CharField(max_length=100, default="", unique=True)
 
     def __str__(self):
         return f"{self.title} (id: {self.id})"
