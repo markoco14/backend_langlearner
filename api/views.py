@@ -22,51 +22,36 @@ def helloWorld(request):
 #
 #
 #
+
+def convert_to_chinese_with_pinyin(chinese_content):
+    content_with_pinyin = []
+    for sentence in chinese_content:
+        pinyin_sentence = []
+        for character in sentence:
+            py = pinyin.get(character)
+            pinyin_sentence.append({
+                "chinese": character,
+                "pinyin": ''.join([item for sublist in py for item in sublist])
+            })
+        content_with_pinyin.append(pinyin_sentence)
+    return content_with_pinyin
+
+
 @api_view(['GET'])
 def get_post_content_with_pinyin(request, post_pk, level_pk):
     try:
         post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
+        data = {
+            "id": post_content.post.id,
+            "content": convert_to_chinese_with_pinyin(post_content.content),
+            "title": post_content.post.title
+        }
 
-        if post_content:
-            post_pinyin = PostContentPinyin.objects.get(post_content_id=post_content.id)
+        return Response(data)
 
-            if post_pinyin:
-                id = post_content.id
-                content = post_content.content
-                pinyin = post_pinyin.pinyin_content
-                title = post_content.post.title
-
-                data = {
-                    "id": id,
-                    "content": content,
-                    "pinyin": pinyin,
-                    "title": title
-                }
-
-                return Response(data)
     except:
         return Response({})
 
-# try:
-#     post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
-#     serializer = PostContentSerializer(post_content, many=False)
-
-#     return Response(serializer.data)
-
-# except:
-#     return Response({})
-
-# try:
-#         pinyin = PostContentPinyin.objects.filter(
-#             post_content__post__id=pk,
-#             post_content__level=0 
-#         ).first()
-#         serializer = PostContentPinyinSerializer(pinyin)
-
-#         return Response(serializer.data)
-#     except:
-
-#         return Response({})
 
 #
 #
@@ -146,9 +131,58 @@ def get_post_content_by_id_level(request, post_pk, level_pk):
 
 @api_view(['POST'])
 def write_post_content(request, post_pk):
+    content = request.data['content']
+    chinese_segments: [] = []
+    for section in content:
+        if type(section).__name__ == 'list':
+            list_segment: [] = []
+            for item in section:
+                list_segment.append(jieba.lcut(item, cut_all=False))
+            chinese_segments.append(list_segment)
+        else:
+            chinese_segments.append(jieba.lcut(section, cut_all=False))
+
+    # HERE WE HAVE CHINESE SEGMENTS BUT NO PINYIN
+    for segment in chinese_segments:
+        if type(segment[0]).__name__ == 'list':
+            for item in segment:
+                print(item)
+        else:
+            print(type(segment))
+            print(segment)
+
+    print(type(chinese_segments))
+    # return Response({})
+        # if type(section).__name__ == 'list':
+        #     for item in segment:
+        #         print(item)
+        # else:
+        #     print(segment)
+    # return Response({})
+    # paragraphs = [p.strip() for p in content.split("\n\n") if p.strip() != ""]
+    # print(paragraphs)
+    # print(content)
+    # content_as_list = list(content)
+    # print(content_as_list)
+    # word_segments = jieba.lcut(content, cut_all=False)
+    # print(word_segments)
+
+    # pinyin_content_list = []
+    # for segment in word_segments:
+    #     # pinyin_segment = pinyin.get(segment)
+    #     pinyin_translation = ''.join(pinyin.get(segment))
+    #     pinyin_content_list.append(pinyin_translation)
+    
+    # print(pinyin_content_list)
+
+    # print('length of chinese segments', len(word_segments))
+    # print('length of pinyin segments', len(pinyin_content_list))
+    # return Response({})
+    # print(json.dumps(chinese_segments))
+    # return Response({})
     request_data = {
         'post': post_pk,
-        'content': request.data['content']
+        'content': chinese_segments
     }
     serializer = PostContentSerializer(data=request_data)
 
@@ -162,8 +196,31 @@ def write_post_content(request, post_pk):
 @api_view(['PUT'])
 def update_post_content(request, pk):
     post_content = PostContent.objects.get(id=pk)
+    content = request.data['content']
+    chinese_segments: [] = []
+    for section in content:
+        if type(section).__name__ == 'list':
+            list_segment: [] = []
+            for item in section:
+                list_segment.append(jieba.lcut(item, cut_all=False))
+            chinese_segments.append(list_segment)
+        else:
+            chinese_segments.append(jieba.lcut(section, cut_all=False))
+
+    # HERE WE HAVE CHINESE SEGMENTS BUT NO PINYIN
+    for segment in chinese_segments:
+        if type(segment[0]).__name__ == 'list':
+            for item in segment:
+                print(item)
+        else:
+            print(type(segment))
+            print(segment)
+
+    request_data = {
+        'content': chinese_segments
+    }
     serializer = PostContentSerializer(
-        instance=post_content, data=request.data, partial=True)
+        instance=post_content, data=request_data, partial=True)
     if serializer.is_valid():
         serializer.save()
 
@@ -204,6 +261,8 @@ def create_post_pinyin(request, pk):
     post_content = PostContent.objects.get(id=pk)
     # get post content as list to iterate through
     content = post_content.content
+
+    # I want the characters as single characters
     content_as_list = list(content)
     # convert each character into pinyin and store in pinyin list
     pinyin_content_list = []
