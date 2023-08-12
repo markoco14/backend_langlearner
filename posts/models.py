@@ -27,9 +27,22 @@ class PostContent(models.Model):
     
     class Meta:
         db_table='posts_post_content'
-        verbose_name_plural='Post content'
+        verbose_name_plural='Post contents'
         unique_together=['post', 'level']
-        
+
+
+class PostContentAudio(models.Model):
+    post_content = models.ForeignKey(PostContent, related_name='audio', on_delete=models.CASCADE)
+    audio_url = models.CharField(max_length=255)
+    timestamps = models.JSONField()
+
+    def __str__(self):
+        return f"Audio data for {self.post_content.post.title} (level: {self.post_content.level})"
+    
+    class Meta:
+        db_table='posts_post_content_audio'
+        verbose_name_plural='Post content audios'
+        unique_together=['post_content', 'audio_url']
 
 
 class PostContentPinyin(models.Model):
