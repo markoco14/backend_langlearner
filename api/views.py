@@ -25,25 +25,16 @@ def helloWorld(request):
 @api_view(['GET'])
 def get_post_content_with_pinyin(request, post_pk, level_pk):
     try:
-        post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
+        post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)        
+        data = {
+            "id": post_content.post.id,
+            "content": post_content.content,
+            "pinyin": "Pinyin",
+            "title": post_content.post.title
+        }
 
-        if post_content:
-            post_pinyin = PostContentPinyin.objects.get(post_content_id=post_content.id)
+        return Response(data)
 
-            if post_pinyin:
-                id = post_content.id
-                content = post_content.content
-                pinyin = post_pinyin.pinyin_content
-                title = post_content.post.title
-
-                data = {
-                    "id": id,
-                    "content": content,
-                    "pinyin": pinyin,
-                    "title": title
-                }
-
-                return Response(data)
     except:
         return Response({})
 
