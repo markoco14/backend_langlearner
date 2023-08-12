@@ -22,14 +22,28 @@ def helloWorld(request):
 #
 #
 #
+
+def convert_to_chinese_with_pinyin(chinese_content):
+    content_with_pinyin = []
+    for sentence in chinese_content:
+        pinyin_sentence = []
+        for character in sentence:
+            py = pinyin.get(character)
+            pinyin_sentence.append({
+                "chinese": character,
+                "pinyin": ''.join([item for sublist in py for item in sublist])
+            })
+        content_with_pinyin.append(pinyin_sentence)
+    return content_with_pinyin
+
+
 @api_view(['GET'])
 def get_post_content_with_pinyin(request, post_pk, level_pk):
     try:
-        post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)        
+        post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
         data = {
             "id": post_content.post.id,
-            "content": post_content.content,
-            "pinyin": "Pinyin",
+            "content": convert_to_chinese_with_pinyin(post_content.content),
             "title": post_content.post.title
         }
 
