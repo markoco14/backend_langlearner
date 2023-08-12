@@ -1,13 +1,19 @@
 from django.db import models
 
+from users.models import User
+
 # Create your models here.
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=100, default="", unique=True)
+    title = models.CharField(max_length=100, default="")
+    user = models.ForeignKey(User, default=1, related_name='user', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.title} (id: {self.id})"
+    
+    class Meta:
+        unique_together=['title', 'user']
 
 
 class PostContent(models.Model):
