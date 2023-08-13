@@ -26,8 +26,8 @@ class PostContent(models.Model):
         return f"Content for {self.post.title} (level: {self.level})"
     
     class Meta:
-        db_table='posts_post_content'
-        verbose_name_plural='Post contents'
+        db_table='post_post_content'
+        verbose_name_plural='Post content'
         unique_together=['post', 'level']
 
 
@@ -40,8 +40,8 @@ class PostContentAudio(models.Model):
         return f"Audio data for {self.post_content.post.title} (level: {self.post_content.level})"
     
     class Meta:
-        db_table='posts_post_content_audio'
-        verbose_name_plural='Post content audios'
+        db_table='post_post_content_audio'
+        verbose_name_plural='Post content audio'
         unique_together=['post_content', 'audio_url']
 
 
@@ -54,5 +54,5 @@ class PostContentPinyin(models.Model):
         return f"Pinyin for {self.post_content.post.title} (level: {self.post_content.level})"
     
     class Meta:
-        db_table='posts_post_content_pinyin'
+        db_table='post_post_content_pinyin'
         verbose_name_plural='Post content pinyin'
