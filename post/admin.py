@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from posts.models import Post, PostContent, PostContentAudio, PostContentPinyin
+from post.models import Post, PostContent, PostContentAudio, PostContentPinyin
 
 # Register your models here.
 admin.site.register(Post)

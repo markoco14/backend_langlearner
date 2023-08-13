@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from api.serializers import PostSerializer
-from posts.models import Post
+from post.models import Post
 
 @api_view(['GET'])
 def get_posts(request):
