@@ -7,7 +7,7 @@ from user.models import User
 
 class Post(models.Model):
     title = models.CharField(max_length=100, default="")
-    user = models.ForeignKey(User, default=1, related_name='user', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, default=1, related_name='posts', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.title} (id: {self.id})"
