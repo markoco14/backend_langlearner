@@ -19,6 +19,13 @@ class PostContentAudioSerializer(serializers.ModelSerializer):
         model = PostContentAudio
         fields = '__all__'
 
+class PostContentWithAudioSerializer(serializers.ModelSerializer):
+    audio = PostContentAudioSerializer(read_only=True)
+    
+    class Meta:
+        model = PostContent
+        fields = ['id', 'post', 'content', 'level', 'audio']
+
 
 class PostContentPinyinSerializer(serializers.ModelSerializer):
     class Meta:
