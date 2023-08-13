@@ -21,6 +21,10 @@ urlpatterns = [
     path('posts/content/<str:pk>/delete/',
          post_content_views.delete_post_content, name='delete-post-content'),
 
+    # POST CONTENT AUDIO CRUD ROUTES
+    path('posts/content/<str:pk>/audio/',
+         post_content_views.get_post_content_audio, name='get-post-content-audio'),
+
     # TTS ROUTES
     path('posts/content/<str:pk>/audio/create/',
          tts_views.create_tts, name='get-audio'),

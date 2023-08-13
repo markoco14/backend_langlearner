@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.serializers import PostContentSerializer
-from post.models import PostContent
+from api.serializers import PostContentAudioSerializer, PostContentSerializer
+from post.models import PostContent, PostContentAudio
 import jieba
 
 
@@ -97,3 +97,11 @@ def delete_post_content(request, pk):
     post_content.delete()
 
     return Response("Post content gone!")
+
+@api_view(['GET'])
+def get_post_content_audio(request, pk):
+    post_content_audio = PostContentAudio.objects.get(post_content__id=pk)
+    serializer = PostContentAudioSerializer(post_content_audio)
+
+    return Response(serializer.data)
+
