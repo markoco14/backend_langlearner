@@ -32,12 +32,12 @@ class PostContent(models.Model):
 
 
 class PostContentAudio(models.Model):
-    post_content = models.ForeignKey(PostContent, related_name='audio', on_delete=models.CASCADE)
+    post_content = models.OneToOneField(PostContent, related_name='audio', on_delete=models.CASCADE)
     audio_url = models.CharField(max_length=255)
     timestamps = models.JSONField()
 
     def __str__(self):
-        return f"Audio data for {self.post_content.post.title} (level: {self.post_content.level})"
+        return f"Audio data for {self.post_content.post.title} (content id: {self.post_content.id})"
     
     class Meta:
         db_table='post_post_content_audio'
