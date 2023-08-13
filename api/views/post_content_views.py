@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from api.serializers import PostContentSerializer
-from posts.models import PostContent
+from post.models import PostContent
 import jieba
 
 

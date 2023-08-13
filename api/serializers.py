@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from posts.models import Post, PostContent, PostContentAudio, PostContentPinyin
+from post.models import Post, PostContent, PostContentAudio, PostContentPinyin
 
 
 class PostSerializer(serializers.ModelSerializer):

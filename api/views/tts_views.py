@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 
 from ..utils import tts_utils
 from api.serializers import PostContentAudioSerializer
-from posts.models import PostContent
+from post.models import PostContent
 from google.cloud import texttospeech
 from google.cloud import texttospeech_v1beta1 as tts_v1
 
