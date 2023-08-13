@@ -2,11 +2,12 @@ import time
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.serializers import PostContentPinyinSerializer, PostContentSerializer, PostSerializer, ReadPostSerializer
+from api.serializers import PostContentAudioSerializer, PostContentPinyinSerializer, PostContentSerializer, PostSerializer, ReadPostSerializer
 from posts.models import Post, PostContent, PostContentPinyin
 import pinyin
 import jieba
 from google.cloud import texttospeech, storage
+from google.cloud import texttospeech_v1beta1 as tts
 
 # Create your views here.
 
@@ -326,13 +327,17 @@ def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
     return public_url
 
 
+def concatenate_characters(array):
+    return ''.join(''.join(subarray) for subarray in array)
+
 @api_view(['GET'])
 def create_tts(request, pk):
     post_content = PostContent.objects.get(id=pk)
-    content = post_content.content
+    
+    content_as_string = concatenate_characters(post_content.content)
 
     tts_client = texttospeech.TextToSpeechClient()
-    synthesis_input = texttospeech.SynthesisInput(text=content)
+    synthesis_input = texttospeech.SynthesisInput(text=content_as_string)
     # MALE VOICE
     voice = texttospeech.VoiceSelectionParams(
         language_code="cmn-TW",
@@ -359,16 +364,19 @@ def create_tts(request, pk):
 
     public_url = upload_blob_from_memory(
         bucket_name, contents, destination_blob_name)
+    
+    
+    data = {
+        "post_content": post_content.id,
+        "audio_url": public_url,
+        "timestamps": 'timestamps'
+    }
 
-    # REPLACE WITH CLOUD STORAGE
-    # with open("./files/male.mp3", "wb") as out:
-    #     # Write the response to the output file.
-    #     out.write(response.audio_content)
+    serializer = PostContentAudioSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
 
-    return Response({
-        'message': 'Audio content saved to cloud storage',
-        'public-url': public_url
-    })
+        return Response(serializer.data)
 
 
 @api_view(['GET'])
