@@ -1,14 +1,14 @@
 from django.urls import path
-from . import views
+from .views import views, post_views
 
 urlpatterns = [
     # GREETING ROUTE
     path('', views.helloWorld, name='hello-world'),
 
-    path('posts/', views.get_posts, name='get-posts'),
-    path('posts/write/', views.create_post, name='write-post'),
-    path('posts/<str:pk>/update/', views.update_post, name='update-post'),
-    path('posts/<str:pk>/delete/', views.delete_post, name='delete-post'),
+    path('posts/', post_views.get_posts, name='get-posts'),
+    path('posts/write/', post_views.create_post, name='write-post'),
+    path('posts/<str:pk>/update/', post_views.update_post, name='update-post'),
+    path('posts/<str:pk>/delete/', post_views.delete_post, name='delete-post'),
 
     path('posts/<str:post_pk>/content/', views.get_post_content, name='get-post-content'),
     path('posts/<str:post_pk>/content/level/<str:level_pk>/', views.get_post_content_by_id_level, name='get-post-content-id-level'),
