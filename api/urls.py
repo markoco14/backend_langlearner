@@ -1,9 +1,7 @@
 from django.urls import path
-from .views import views, post_views, post_content_views, tts_views, reader_views
+from .views import post_views, post_content_views, tts_views, reader_views
 
 urlpatterns = [
-    # GREETING ROUTE
-    path('', views.helloWorld, name='hello-world'),
 
     # POST CRUD ROUTES
     path('posts/', post_views.get_posts, name='get-posts'),
@@ -30,12 +28,4 @@ urlpatterns = [
     # READER ROUTES
     path('read/posts/<str:post_pk>/level/<str:level_pk>/',
          reader_views.get_post_content_with_pinyin, name='content-with-pinyin'),
-
-    # MISC ROUTES
-    path('posts/<str:pk>/content/pinyin/',
-         views.get_pinyin_content_by_post_id, name='get-pinyin-content'),
-    path('posts/content/<str:pk>/pinyin/create/',
-         views.create_post_pinyin, name='get-post-pinyin'),
-    path('posts/content/<str:pk>/segments/create/',
-         views.create_segments, name='get-segments'),
 ]
