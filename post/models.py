@@ -34,7 +34,7 @@ class PostContent(models.Model):
 class PostContentAudio(models.Model):
     post_content = models.OneToOneField(PostContent, related_name='audio', on_delete=models.CASCADE)
     audio_url = models.CharField(max_length=255)
-    timestamps = models.JSONField()
+    timestamps = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"Audio data for {self.post_content.post.title} (content id: {self.post_content.id})"
