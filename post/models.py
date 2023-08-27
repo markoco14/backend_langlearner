@@ -18,7 +18,7 @@ class Post(models.Model):
 
 class PostContent(models.Model):
     post = models.ForeignKey(
-        Post, related_name='content', on_delete=models.CASCADE)
+        Post, related_name='contents', on_delete=models.CASCADE)
     content = models.JSONField()
     level = models.IntegerField(default=0)
 
