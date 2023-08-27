@@ -13,3 +13,10 @@ def listWords(request):
     paginated_queryset = paginator.paginate_queryset(words, request)
     serializer = WordSerializer(paginated_queryset, many=True)
     return paginator.get_paginated_response(serializer.data)
+
+@api_view(['GET'])
+def getWord(request, word_pk):
+    word = Word.objects.get(id=word_pk)
+    serializer = WordSerializer(word, many=False)
+
+    return Response(serializer.data)
