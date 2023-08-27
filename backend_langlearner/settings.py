@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'api',
     'user',
     'post',
+    'cedict',
 ]
 
 MIDDLEWARE = [
