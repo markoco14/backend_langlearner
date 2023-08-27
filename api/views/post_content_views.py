@@ -74,15 +74,6 @@ def update_post_content(request, pk):
         else:
             chinese_segments.append(jieba.lcut(section, cut_all=False))
 
-    # HERE WE HAVE CHINESE SEGMENTS BUT NO PINYIN
-    for segment in chinese_segments:
-        if type(segment[0]).__name__ == 'list':
-            for item in segment:
-                print(item)
-        else:
-            print(type(segment))
-            print(segment)
-
     request_data = {
         'content': chinese_segments
     }
