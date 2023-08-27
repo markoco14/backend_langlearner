@@ -9,14 +9,10 @@ from google.cloud import texttospeech
 from google.cloud import texttospeech_v1beta1 as tts_v1
 
 
-@api_view(['GET'])
-def create_tts(request, pk):
-    post_content = PostContent.objects.get(id=pk)
-    
-    content_as_string = tts_utils.concatenate_characters(post_content.content)
-
+@api_view(['POST'])
+def create_tts(request, content_pk):
     tts_client = texttospeech.TextToSpeechClient()
-    synthesis_input = texttospeech.SynthesisInput(text=content_as_string)
+    synthesis_input = texttospeech.SynthesisInput(text=request.data['post_content'])
     # MALE VOICE
     voice = texttospeech.VoiceSelectionParams(
         language_code="cmn-TW",
@@ -46,7 +42,7 @@ def create_tts(request, pk):
     
     # without timestamps to leave null
     data = {
-        "post_content": post_content.id,
+        "post_content": content_pk,
         "audio_url": public_url,
     }
 
