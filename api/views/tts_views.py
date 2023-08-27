@@ -44,11 +44,10 @@ def create_tts(request, pk):
     public_url = tts_utils.upload_blob_from_memory(
         bucket_name, contents, destination_blob_name)
     
-    
+    # without timestamps to leave null
     data = {
         "post_content": post_content.id,
         "audio_url": public_url,
-        "timestamps": 'timestamps'
     }
 
     serializer = ContentAudioSerializer(data=data)
