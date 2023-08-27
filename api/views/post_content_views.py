@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.serializers import PostContentAudioSerializer, PostContentSerializer, PostContentWithAudioSerializer
-from post.models import PostContent, PostContentAudio
+from api.serializers import ContentAudioSerializer, PostContentSerializer, ContentWithAudioSerializer
+from post.models import PostContent, ContentAudio
 import jieba
 
 
@@ -22,7 +22,7 @@ def get_post_content(request, post_pk):
 def get_post_content_by_id_level(request, post_pk, level_pk):
     try:
         post_content = PostContent.objects.get(post__id=post_pk, level=level_pk)
-        serializer = PostContentWithAudioSerializer(post_content, many=False)
+        serializer = ContentWithAudioSerializer(post_content, many=False)
 
         return Response(serializer.data)
     
@@ -103,8 +103,8 @@ def delete_post_content(request, pk):
 
 @api_view(['GET'])
 def get_post_content_audio(request, pk):
-    post_content_audio = PostContentAudio.objects.get(post_content__id=pk)
-    serializer = PostContentAudioSerializer(post_content_audio)
+    post_content_audio = ContentAudio.objects.get(post_content__id=pk)
+    serializer = ContentAudioSerializer(post_content_audio)
 
     return Response(serializer.data)
 

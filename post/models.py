@@ -31,7 +31,7 @@ class PostContent(models.Model):
         unique_together=['post', 'level']
 
 
-class PostContentAudio(models.Model):
+class ContentAudio(models.Model):
     post_content = models.OneToOneField(PostContent, related_name='audio', on_delete=models.CASCADE)
     audio_url = models.CharField(max_length=255)
     timestamps = models.JSONField(null=True, blank=True)
@@ -40,12 +40,12 @@ class PostContentAudio(models.Model):
         return f"Audio data for {self.post_content.post.title} (content id: {self.post_content.id})"
     
     class Meta:
-        db_table='post_post_content_audio'
-        verbose_name_plural='Post content audio'
+        db_table='post_content_audio'
+        verbose_name_plural='Content audio'
         unique_together=['post_content', 'audio_url']
 
 
-class PostContentPinyin(models.Model):
+class ContentPinyin(models.Model):
     pinyin_content = models.TextField()
     post_content = models.OneToOneField(
         PostContent, related_name='pinyin', on_delete=models.CASCADE)
@@ -54,5 +54,5 @@ class PostContentPinyin(models.Model):
         return f"Pinyin for {self.post_content.post.title} (level: {self.post_content.level})"
     
     class Meta:
-        db_table='post_post_content_pinyin'
+        db_table='post_content_pinyin'
         verbose_name_plural='Post content pinyin'

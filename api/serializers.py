@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from post.models import Post, PostContent, PostContentAudio, PostContentPinyin
+from post.models import Post, PostContent, ContentAudio, ContentPinyin
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -14,22 +14,22 @@ class PostContentSerializer(serializers.ModelSerializer):
         model = PostContent
         fields = '__all__'
 
-class PostContentAudioSerializer(serializers.ModelSerializer):
+class ContentAudioSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PostContentAudio
+        model = ContentAudio
         fields = '__all__'
 
-class PostContentWithAudioSerializer(serializers.ModelSerializer):
-    audio = PostContentAudioSerializer(read_only=True)
+class ContentWithAudioSerializer(serializers.ModelSerializer):
+    audio = ContentAudioSerializer(read_only=True)
     
     class Meta:
         model = PostContent
         fields = ['id', 'post', 'content', 'level', 'audio']
 
 
-class PostContentPinyinSerializer(serializers.ModelSerializer):
+class ContentPinyinSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PostContentPinyin
+        model = ContentPinyin
         fields = '__all__'
 
 
