@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from ..utils import tts_utils
-from api.serializers import PostContentAudioSerializer
+from api.serializers import ContentAudioSerializer
 from post.models import PostContent
 from google.cloud import texttospeech
 from google.cloud import texttospeech_v1beta1 as tts_v1
@@ -44,14 +44,13 @@ def create_tts(request, pk):
     public_url = tts_utils.upload_blob_from_memory(
         bucket_name, contents, destination_blob_name)
     
-    
+    # without timestamps to leave null
     data = {
         "post_content": post_content.id,
         "audio_url": public_url,
-        "timestamps": 'timestamps'
     }
 
-    serializer = PostContentAudioSerializer(data=data)
+    serializer = ContentAudioSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
 

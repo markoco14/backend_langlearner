@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.serializers import PostContentSerializer
-from post.models import PostContent
+from api.serializers import ContentAudioSerializer, PostContentSerializer, ContentWithAudioSerializer
+from post.models import PostContent, ContentAudio
 import jieba
 
 
@@ -21,13 +21,16 @@ def get_post_content(request, post_pk):
 @api_view(['GET'])
 def get_post_content_by_id_level(request, post_pk, level_pk):
     try:
-        post_content = PostContent.objects.get(post_id=post_pk, level=level_pk)
-        serializer = PostContentSerializer(post_content, many=False)
+        post_content = PostContent.objects.get(post__id=post_pk, level=level_pk)
+        serializer = ContentWithAudioSerializer(post_content, many=False)
 
         return Response(serializer.data)
-
-    except:
-        return Response({})
+    
+    except PostContent.DoesNotExist:
+        return Response('content does not exist')
+    
+    except Exception as e:
+        return Response({'error': str(e)})
 
 
 @api_view(['POST'])
@@ -97,3 +100,11 @@ def delete_post_content(request, pk):
     post_content.delete()
 
     return Response("Post content gone!")
+
+@api_view(['GET'])
+def get_post_content_audio(request, pk):
+    post_content_audio = ContentAudio.objects.get(post_content__id=pk)
+    serializer = ContentAudioSerializer(post_content_audio)
+
+    return Response(serializer.data)
+
