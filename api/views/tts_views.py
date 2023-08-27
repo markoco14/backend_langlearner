@@ -4,57 +4,57 @@ from rest_framework.decorators import api_view
 
 from ..utils import tts_utils
 from api.serializers import ContentAudioSerializer
-from post.models import PostContent
+from post.models import ContentAudio, PostContent
 from google.cloud import texttospeech
 from google.cloud import texttospeech_v1beta1 as tts_v1
 
 
-@api_view(['GET'])
-def create_tts(request, pk):
-    post_content = PostContent.objects.get(id=pk)
-    
-    content_as_string = tts_utils.concatenate_characters(post_content.content)
+@api_view(['POST'])
+def create_tts(request, content_pk):
+    try: 
+        existing_audio = ContentAudio.objects.get(post_content_id=content_pk)
+        return Response({"detail": "Audio already exists"})
+    except ContentAudio.DoesNotExist:
+        tts_client = texttospeech.TextToSpeechClient()
+        synthesis_input = texttospeech.SynthesisInput(text=request.data['post_content'])
+        # MALE VOICE
+        voice = texttospeech.VoiceSelectionParams(
+            language_code="cmn-TW",
+            name="cmn-TW-Wavenet-B",
+            ssml_gender=texttospeech.SsmlVoiceGender.MALE,
+        )
+        # FEMAIL VOICE
+        # voice = texttospeech.VoiceSelectionParams(
+        #     language_code="cmn-TW",
+        #     name="cmn-TW-Wavenet-A",
+        #     ssml_gender=texttospeech.SsmlVoiceGender.FEMALE,
+        # )
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3
+        )
+        response = tts_client.synthesize_speech(
+            input=synthesis_input, voice=voice, audio_config=audio_config
+        )
+        # UPLOAD FILE TO STORAGE
+        bucket_name = 'twle-445f4.appspot.com'
+        contents = response.audio_content
+        destination_blob_name = "chinese/" + \
+            str(round(time.time() * 1000)) + ".mp3"
 
-    tts_client = texttospeech.TextToSpeechClient()
-    synthesis_input = texttospeech.SynthesisInput(text=content_as_string)
-    # MALE VOICE
-    voice = texttospeech.VoiceSelectionParams(
-        language_code="cmn-TW",
-        name="cmn-TW-Wavenet-B",
-        ssml_gender=texttospeech.SsmlVoiceGender.MALE,
-    )
-    # FEMAIL VOICE
-    # voice = texttospeech.VoiceSelectionParams(
-    #     language_code="cmn-TW",
-    #     name="cmn-TW-Wavenet-A",
-    #     ssml_gender=texttospeech.SsmlVoiceGender.FEMALE,
-    # )
-    audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
-    )
-    response = tts_client.synthesize_speech(
-        input=synthesis_input, voice=voice, audio_config=audio_config
-    )
-    # UPLOAD FILE TO STORAGE
-    bucket_name = 'twle-445f4.appspot.com'
-    contents = response.audio_content
-    destination_blob_name = "chinese/" + \
-        str(round(time.time() * 1000)) + ".mp3"
+        public_url = tts_utils.upload_blob_from_memory(
+            bucket_name, contents, destination_blob_name)
+        
+        # without timestamps to leave null
+        data = {
+            "post_content": content_pk,
+            "audio_url": public_url,
+        }
 
-    public_url = tts_utils.upload_blob_from_memory(
-        bucket_name, contents, destination_blob_name)
-    
-    # without timestamps to leave null
-    data = {
-        "post_content": post_content.id,
-        "audio_url": public_url,
-    }
+        serializer = ContentAudioSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
 
-    serializer = ContentAudioSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-
-        return Response(serializer.data)
+            return Response(serializer.data)
 
 #
 # 

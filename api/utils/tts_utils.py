@@ -20,9 +20,9 @@ def upload_blob_from_memory(bucket_name, contents, destination_blob_name):
     blob.make_public()
     public_url = blob.public_url
 
-    print(
-        f"{destination_blob_name} with contents {contents} uploaded to {bucket_name} with public url {public_url}."
-    )
+    # print(
+    #     f"{destination_blob_name} with contents {contents} uploaded to {bucket_name} with public url {public_url}."
+    # )
 
     return public_url
 

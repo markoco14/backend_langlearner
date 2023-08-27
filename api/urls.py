@@ -26,10 +26,10 @@ urlpatterns = [
          post_content_views.get_post_content_audio, name='get-post-content-audio'),
 
     # TTS ROUTES
-    path('posts/content/<str:pk>/audio/create/',
+    path('posts/content/<str:content_pk>/audio/create/',
          tts_views.create_tts, name='get-audio'),
 
     # READER ROUTES
     path('read/posts/<str:post_pk>/level/<str:level_pk>/',
-         reader_views.get_post_content_with_pinyin, name='content-with-pinyin'),
+         reader_views.get_post_for_reader, name='post-for-reader'),
 ]
