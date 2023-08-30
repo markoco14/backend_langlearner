@@ -34,6 +34,11 @@ ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = "user.User"
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100  # specify the number of items per page
+}
+
 
 # Application definition
 
@@ -49,6 +54,7 @@ INSTALLED_APPS = [
     'api',
     'user',
     'post',
+    'cedict',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +101,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DEV_DB_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     }
 }
 

@@ -1,4 +1,6 @@
 from django.urls import path
+
+from cedict import views as cedict_views
 from .views import post_views, post_content_views, tts_views, reader_views
 
 urlpatterns = [
@@ -32,4 +34,7 @@ urlpatterns = [
     # READER ROUTES
     path('read/posts/<str:post_pk>/level/<str:level_pk>/',
          reader_views.get_post_for_reader, name='post-for-reader'),
+
+    path('words/', cedict_views.listWords, name='list-words'),
+    path('words/<str:word_pk>/', cedict_views.getWord, name='get-word'),
 ]
